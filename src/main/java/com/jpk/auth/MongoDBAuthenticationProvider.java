@@ -21,11 +21,15 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 
     private static Logger logger = LoggerFactory.getLogger(MongoDBAuthenticationProvider.class);
 
-    @Value("${mongo.connection.string:mongodb://localhost:27017/admin}")
     private String connectionString;
-
-    @Autowired
     private MongoDBClientFactory clientFactory;
+
+    public MongoDBAuthenticationProvider(
+            @Value("${mongo.connection.string:mongodb://localhost:27017/admin}") String connectionString,
+            @Autowired MongoDBClientFactory clientFactory) {
+        this.connectionString = connectionString;
+        this.clientFactory = clientFactory;
+    }
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -43,7 +47,7 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 
         try(MongoClient mongoClient = clientFactory.create(settings)) {
             logger.info("Attempting to authenticate user '{}'", username);
-            mongoClient.listDatabases().first();
+            mongoClient.listDatabaseNames().first();
             logger.info("User successfully authenticated user '{}'", username);
         } catch(MongoSecurityException mse) {
             String message = String.format("User '%s' was not authenticated.", username);
