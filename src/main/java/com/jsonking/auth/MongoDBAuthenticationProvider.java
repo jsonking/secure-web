@@ -1,4 +1,4 @@
-package com.jpk.auth;
+package com.jsonking.auth;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;

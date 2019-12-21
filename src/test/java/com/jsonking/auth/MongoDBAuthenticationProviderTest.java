@@ -1,4 +1,4 @@
-package com.jpk.auth;
+package com.jsonking.auth;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoSecurityException;
