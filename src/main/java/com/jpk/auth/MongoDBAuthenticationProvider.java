@@ -16,6 +16,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+/**
+ * An AuthenticationProvider that authenticates users against users stored in MongoDB.
+ * Uses username and password
+ *
+ * The user is authenticated if the client can list databases.
+ * See https://docs.mongodb.com/manual/reference/command/listDatabases/
+ *
+ * Useful when users should only be granted access if they have a valid account in the MongoDB database.
+ */
 @Service
 public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
@@ -37,8 +46,9 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+
         ConnectionString connString = new ConnectionString(connectionString);
-        MongoCredential credential = MongoCredential.createCredential(username, connString.getDatabase(), authentication.getCredentials().toString().toCharArray());
+        MongoCredential credential = createCredential(username, authentication, connString);
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(connString)
@@ -55,5 +65,10 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
             throw new BadCredentialsException(message, mse);
         }
         return new User(username, authentication.getCredentials().toString(), Collections.emptyList());
+    }
+
+    private MongoCredential createCredential(String username, UsernamePasswordAuthenticationToken authentication, ConnectionString connString) {
+        char[] chars = authentication.getCredentials().toString().toCharArray();
+        return MongoCredential.createCredential(username, connString.getDatabase(), chars);
     }
 }
