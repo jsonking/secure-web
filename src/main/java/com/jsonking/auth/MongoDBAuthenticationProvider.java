@@ -28,7 +28,7 @@ import java.util.Collections;
 @Service
 public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private static Logger logger = LoggerFactory.getLogger(MongoDBAuthenticationProvider.class);
+    private static Logger log = LoggerFactory.getLogger(MongoDBAuthenticationProvider.class);
 
     private String connectionString;
     private MongoDBClientFactory clientFactory;
@@ -56,12 +56,12 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
                 .build();
 
         try(MongoClient mongoClient = clientFactory.create(settings)) {
-            logger.info("Attempting to authenticate user '{}'", username);
+            log.info("Attempting to authenticate user '{}'", username);
             mongoClient.listDatabaseNames().first();
-            logger.info("User successfully authenticated user '{}'", username);
+            log.info("Successfully authenticated user '{}'", username);
         } catch(MongoSecurityException mse) {
             String message = String.format("User '%s' was not authenticated.", username);
-            logger.warn(message, mse);
+            log.warn(message, mse);
             throw new BadCredentialsException(message, mse);
         }
         return new User(username, authentication.getCredentials().toString(), Collections.emptyList());
